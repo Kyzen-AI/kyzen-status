@@ -6,11 +6,9 @@ sites:
     url: https://app.kyzen.ai
 
 status-website:
-  # No custom domain yet — the site is served at
-  # https://kyzen-ai.github.io/kyzen-status, so baseUrl must be the repo name.
-  # To use a custom domain later (e.g. status.kyzen.ai), remove `baseUrl`,
-  # add `cname: status.kyzen.ai`, and point a DNS CNAME at kyzen-ai.github.io.
-  baseUrl: /kyzen-status
+  # Custom domain. Requires a DNS CNAME: status.kyzen.ai -> kyzen-ai.github.io
+  # (Upptime writes the gh-pages CNAME file, which sets the Pages custom domain).
+  cname: status.kyzen.ai
   name: Kyzen Status
   introTitle: "**Kyzen** service status"
   introMessage: Live and historical availability of Kyzen's public services. Independently monitored from outside Kyzen's own infrastructure.
