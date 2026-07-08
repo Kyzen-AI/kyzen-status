@@ -13,7 +13,10 @@ status-website:
   baseUrl: /kyzen-status
   name: Kyzen Status
   introTitle: "**Kyzen** service status"
-  introMessage: Live and historical availability of Kyzen's public services. Powered by [Upptime](https://upptime.js.org) — monitored externally from GitHub, independent of Kyzen's own infrastructure.
+  introMessage: Live and historical availability of Kyzen's public services. Independently monitored from outside Kyzen's own infrastructure.
   navbar:
     - title: Status
       href: /
+  # Hide the hardcoded "This page is open source, powered by Upptime" footer.
+  css: |
+    footer { display: none !important; }
