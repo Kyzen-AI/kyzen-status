@@ -1,31 +1,21 @@
-# Change these first
-owner: upptime # Your GitHub organization or username, where this repository lives
-repo: upptime # The name of this repository
+owner: Kyzen-AI # GitHub organization where this repository lives
+repo: kyzen-status # The name of this repository
 
 sites:
-  - name: Google
-    url: https://www.google.com
-  - name: Wikipedia
-    url: https://en.wikipedia.org
-  - name: Hacker News
-    url: https://news.ycombinator.com
-  - name: Test Broken Site
-    url: https://thissitedoesnotexist.koj.co
+  - name: Kyzen App
+    url: https://app.kyzen.ai
 
 status-website:
-  # Add your custom domain name, or remove the `cname` line if you don't have a domain
-  # Uncomment the `baseUrl` line if you don't have a custom domain and add your repo name there
-  cname: demo.upptime.js.org
-  # baseUrl: /your-repo-name
-  logoUrl: https://raw.githubusercontent.com/upptime/upptime.js.org/master/static/img/icon.svg
-  name: Upptime
-  introTitle: "**Upptime** is the open-source uptime monitor and status page, powered entirely by GitHub."
-  introMessage: This is a sample status page which uses **real-time** data from our [GitHub repository](https://github.com/upptime/upptime). No server required — just GitHub Actions, Issues, and Pages. [**Get your own for free**](https://github.com/upptime/upptime)
+  # No custom domain yet — the site is served at
+  # https://kyzen-ai.github.io/kyzen-status, so baseUrl must be the repo name.
+  # To use a custom domain later (e.g. status.kyzen.ai), remove `baseUrl`,
+  # add `cname: status.kyzen.ai`, and point a DNS CNAME at kyzen-ai.github.io.
+  baseUrl: /kyzen-status
+  name: Kyzen Status
+  introTitle: "**Kyzen** service status"
+  introMessage: Live and historical availability of Kyzen's public services. Powered by [Upptime](https://upptime.js.org) — monitored externally from GitHub, independent of Kyzen's own infrastructure.
   navbar:
     - title: Status
       href: /
     - title: GitHub
       href: https://github.com/$OWNER/$REPO
-
-# Upptime also supports notifications, assigning issues, and more
-# See https://upptime.js.org/docs/configuration
