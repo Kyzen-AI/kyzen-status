@@ -1,0 +1,16 @@
+# Thin stub. All logic lives in the org-wide reusable workflow so it updates
+# centrally — do NOT copy policy logic in here.
+name: SOC2 gate
+
+on:
+  pull_request:
+  push:
+    branches: [main, staging]
+
+jobs:
+  soc2:
+    # Reusable workflow hosted in the org `.github` repo (or your infra-baseline repo).
+    uses: Kyzen-AI/.github/.github/workflows/soc2-baseline.yml@main
+    # Static scan covers Terraform / CloudFormation / Kubernetes / Docker.
+    # It does NOT parse Pulumi source — for Pulumi repos, also wire the CrossGuard
+    # step into your deploy workflow (see the central repo's policy/crossguard).
