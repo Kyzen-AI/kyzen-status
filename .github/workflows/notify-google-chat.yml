@@ -1,0 +1,72 @@
+# Forwards Upptime incident issues to a Google Chat space via an incoming
+# webhook. This is NOT an Upptime-generated file, so `update-template` will
+# never overwrite it (Upptime has no native Google Chat channel — see
+# https://upptime.js.org/docs/notifications/).
+#
+# TRIGGER CAVEAT: the `issues` event does NOT fire for issues opened by the
+# default GITHUB_TOKEN (github-actions[bot]). This forwarder therefore only
+# runs once Upptime opens incidents under a real user credential — i.e. once
+# the `GH_PAT` secret (the machine account's PAT) is set. Until then it stays
+# dormant rather than erroring.
+name: Google Chat Notify
+on:
+  issues:
+    types: [opened, closed, reopened]
+
+# The issue payload is already in `github.event` and we only POST to an
+# external webhook, so the job needs no access to the repo at all. Empty =
+# the tightest possible scope.
+permissions: {}
+
+concurrency:
+  group: gchat-notify-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    name: Forward incident to Google Chat
+    runs-on: ubuntu-latest
+    # Upptime incident issues always carry the `status` label. Gating on it
+    # keeps hand-filed issues from paging the whole space.
+    if: contains(github.event.issue.labels.*.name, 'status')
+    steps:
+      - name: Post to Google Chat space
+        env:
+          # Incoming-webhook URL for the space, stored as a repo secret.
+          WEBHOOK: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
+          # Issue fields are passed through env, never inlined into the script
+          # body: an issue title is attacker-influenceable text, and inlining
+          # `${{ github.event.issue.title }}` straight into `run:` would be a
+          # shell-injection hole.
+          ACTION: ${{ github.event.action }}
+          TITLE: ${{ github.event.issue.title }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          # Missing secret => warn and skip (exit 0). A not-yet-configured
+          # webhook must not paint a permanent red X on the repo whose entire
+          # job is raising alarms — that trains people to ignore red.
+          if [ -z "${WEBHOOK:-}" ]; then
+            echo "::warning::GOOGLE_CHAT_WEBHOOK secret is not set; skipping Google Chat notification."
+            exit 0
+          fi
+          case "$ACTION" in
+            opened|reopened) header="🛑 *Incident opened*" ;;
+            closed)          header="✅ *Incident resolved*" ;;
+            *)               header="ℹ️ *Incident update*" ;;
+          esac
+          # Build the JSON with jq --arg so a crafted issue title cannot break
+          # out of the payload. Google Chat text markup: *bold*, <url|label>.
+          body="$(jq -n \
+            --arg h "$header" \
+            --arg t "$TITLE" \
+            --arg u "$ISSUE_URL" \
+            --arg n "$NUMBER" \
+            '{text: ($h + "\n" + $t + "\n<" + $u + "|View incident #" + $n + ">")}')"
+          # --fail-with-body: a configured-but-broken webhook (bad URL, revoked
+          # token) SHOULD fail loudly. The soft-skip above is only for the
+          # not-yet-configured case; a real delivery failure is a visible gap.
+          curl -sS --fail-with-body -X POST \
+            -H 'Content-Type: application/json' \
+            -d "$body" "$WEBHOOK"
