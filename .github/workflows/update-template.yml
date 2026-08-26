@@ -16,14 +16,23 @@
 
 name: Update Template CI
 on:
-  schedule:
-    - cron: "0 0 * * *"
+  # Schedule disabled: self-update rewrites files under .github/workflows/,
+  # which requires a PAT with `workflow` scope. The default GITHUB_TOKEN
+  # cannot hold that scope, so a scheduled run would fail every time.
+  # Trigger manually (workflow_dispatch) during a deliberate Upptime bump.
+  # schedule:
+  #   - cron: "0 0 * * *"
   repository_dispatch:
     types: [update_template]
   workflow_dispatch:
 concurrency:
   group: ${{ github.repository }}-${{ github.head_ref || github.ref_name }}-upptime
   cancel-in-progress: false
+# Least-privilege token scopes. Without this block the workflow inherits
+# the repo default (read-only), and pushing status commits back to `live`
+# fails with a 403 — the failure mode that silently stops all monitoring.
+permissions:
+  contents: write
 jobs:
   release:
     name: Build
